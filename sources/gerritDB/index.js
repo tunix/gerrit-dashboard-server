@@ -8,6 +8,7 @@ var filterOptions = require("../../config/filter-options");
 var index = require("../../core/index");
 var cache = require("../cache");
 var util = require("../../util/index");
+var helpers = require("./helpers");
 
 var gerritDB = (function () {
     "use strict";
@@ -194,8 +195,6 @@ var gerritDB = (function () {
      * MergeStatisticsView is responsible for finding the merge time related to patch.
      * Mathematical functions that used for calculating to best matching time duration between creation time
      * and first action time.
-     *
-     * TODO: Onboarding and other possible disallowed projects should be configurable.
      */
     function getAverageMergeDurationByProject (filterOption, callback) {
         var filterDate = getFilterDate(filterOption);
@@ -236,7 +235,7 @@ var gerritDB = (function () {
                     GROUP BY PatchSet.change_id,PatchSet.patch_set_id
                ) AS MergeStatisticsView
             ) ProjectMerge
-            WHERE Project NOT LIKE '%Onboarding%'
+            ${helpers.injectExcludedProjectsIntoSql(filterOptions.EXCLUDED_PROJECTS)}
             GROUP BY Project`;
 
         doQuery("getAverageMergeDurationByProject", query, function (queryResult) {
@@ -250,8 +249,6 @@ var gerritDB = (function () {
      * other reviewers(accounts except patchset owner and Jenkins accounts).
      * Mathematical functions that used for calculating to best matching time duration between creation time
      * and first action time.
-     *
-     * TODO: Onboarding and other possible disallowed projects should be configurable.
      */
     function getAverageFirstReviewDurationByProject (filterOption, callback) {
         var filterDate = getFilterDate(filterOption);
@@ -294,7 +291,7 @@ var gerritDB = (function () {
                     GROUP BY PatchSet.change_id,PatchSet.patch_set_id
                 ) AS FirstReviewActionTimeView
             ) ProjectReview
-            WHERE Project NOT LIKE '%Onboarding%'
+            ${helpers.injectExcludedProjectsIntoSql(filterOptions.EXCLUDED_PROJECTS)}
             GROUP BY Project`;
 
         doQuery("getAverageFirstReviewDurationByProject", query, function (queryResult) {
