@@ -1,6 +1,6 @@
 "use strict";
 
-exports.injectExcludedProjectsIntoSql = function(excludedProjects, projectColumnName) {
+exports.injectExcludedProjectsIntoSql = function (excludedProjects, projectColumnName) {
     var colName = projectColumnName || "dest_project_name";
     var sql = ``;
 
